@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -24,26 +25,47 @@ namespace VolumeManager
     {
         private CoreAudioController _coreAudioController;
         private CoreAudioDevice _selectedDevice;
+
+        private IDisposable _masterVolumeObserver;
+
         public MainWindow()
         {
             InitializeComponent();
 
             _coreAudioController = new();
-            IEnumerable<CoreAudioDevice> playbackDevices = _coreAudioController.GetPlaybackDevices();
+            IEnumerable<CoreAudioDevice> playbackDevices = _coreAudioController.GetPlaybackDevices().Where(d => d.State != AudioSwitcher.AudioApi.DeviceState.Disabled);
 
-            cbDeviceList.ItemsSource = playbackDevices.Select(p => p.Name).ToList(); ;
-            cbDeviceList.SelectedIndex = 0;
-
-            sliderMasterVolume.Maximum = 100;
+            comboBoxDeviceList.ItemsSource = playbackDevices.ToList(); ;
+            comboBoxDeviceList.SelectedIndex = 0;
 
             _selectedDevice = playbackDevices.ElementAt(0);
+
+            _masterVolumeObserver = _selectedDevice.VolumeChanged.Subscribe(new DeviceVolumeObserver(sliderMasterVolume));
+
         }
 
         private void cbDeviceList_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            _selectedDevice = _coreAudioController.GetPlaybackDevices().First(p => p.Name == e.AddedItems[0]?.ToString());
+            if (e.AddedItems.Count < 1) 
+            {
+                Trace.WriteLine("No Device Selected");
+                return; 
+            }
+
+            _selectedDevice = e.AddedItems[0]as CoreAudioDevice;
             
             sliderMasterVolume.Value = _selectedDevice.Volume;
+            if (_masterVolumeObserver != null)
+                _masterVolumeObserver.Dispose();
+            _masterVolumeObserver = _selectedDevice.VolumeChanged.Subscribe(new DeviceVolumeObserver(sliderMasterVolume));
+        }
+
+        private void sliderMasterVolume_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            if(sliderMasterVolume.IsEnabled)
+            {
+                _selectedDevice.Volume = e.NewValue;
+            }
         }
     }
 }
