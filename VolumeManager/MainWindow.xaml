@@ -3,7 +3,8 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:VolumeManager"
+        xmlns:local="clr-namespace:VolumeManager" 
+        xmlns:Components="clr-namespace:VolumeManager.Components"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
     <Grid Margin="20">
@@ -28,11 +29,7 @@
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
 
-        <ComboBox x:Name="comboBoxDeviceList" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"  Grid.ColumnSpan="12" SelectionChanged="cbDeviceList_SelectionChanged"/>
-        <Label Grid.Row="1" Grid.Column="0" >Master Volume</Label>
-        <Label Grid.Row="1" Grid.Column="1" >0%</Label>
-        <Slider x:Name="sliderMasterVolume" Grid.Row="1" Grid.Column="2" Grid.ColumnSpan="8" Margin="5" Maximum="100" SmallChange="1" LargeChange="5" ValueChanged="sliderMasterVolume_ValueChanged" />
-        <Button Grid.Row="1" Grid.Column="10">-</Button>
-        <Button Grid.Row="1" Grid.Column="11">+</Button>
+        <ComboBox x:Name="comboBoxDeviceList" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"  Grid.ColumnSpan="12" />
+        <Components:DeviceVolumeControl SourceName="test" Grid.Row="1" Grid.ColumnSpan="12" />
     </Grid>
 </Window>
