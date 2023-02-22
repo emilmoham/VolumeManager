@@ -1,4 +1,5 @@
 ﻿using AudioSwitcher.AudioApi.CoreAudio;
+using AudioSwitcher.AudioApi;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -15,6 +16,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using VolumeManager.Wrappers;
 
 namespace VolumeManager
 {
@@ -31,8 +33,12 @@ namespace VolumeManager
 
             _coreAudioController = new();
             IEnumerable<CoreAudioDevice> playbackDevices = _coreAudioController.GetPlaybackDevices().Where(d => d.State != AudioSwitcher.AudioApi.DeviceState.Disabled);
+            List<AudioDeviceWrapper> myList = new();
+            playbackDevices.Where(d => d.State == DeviceState.Active).ToList().ForEach(p => {
+                myList.Add(new(p)); 
+            });
 
-            comboBoxDeviceList.ItemsSource = playbackDevices.ToList(); ;
+            comboBoxDeviceList.ItemsSource = myList;
             comboBoxDeviceList.SelectedIndex = 0;
         }
 
@@ -43,9 +49,9 @@ namespace VolumeManager
                 Trace.WriteLine("No Device Selected");
                 return;
             }
-            CoreAudioDevice _selectedDevice = e.AddedItems[0] as CoreAudioDevice;
-            Trace.WriteLine(_selectedDevice.FullName);
-            masterVolumeControl.ChangeDevice(_selectedDevice);
+            AudioDeviceWrapper selectedDevice = e.AddedItems[0] as AudioDeviceWrapper;
+            Trace.WriteLine(selectedDevice.ToString());
+            masterVolumeControl.ChangeDevice(selectedDevice._device);
         }
     }
 }
