@@ -24,9 +24,6 @@ namespace VolumeManager
     public partial class MainWindow : Window
     {
         private CoreAudioController _coreAudioController;
-        private CoreAudioDevice _selectedDevice;
-
-        private IDisposable _masterVolumeObserver;
 
         public MainWindow()
         {
@@ -37,35 +34,18 @@ namespace VolumeManager
 
             comboBoxDeviceList.ItemsSource = playbackDevices.ToList(); ;
             comboBoxDeviceList.SelectedIndex = 0;
-
-            _selectedDevice = playbackDevices.ElementAt(0);
-
-            //_masterVolumeObserver = _selectedDevice.VolumeChanged.Subscribe(new DeviceVolumeObserver(sliderMasterVolume));
-
         }
 
-        //private void cbDeviceList_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        //{
-        //    if (e.AddedItems.Count < 1) 
-        //    {
-        //        Trace.WriteLine("No Device Selected");
-        //        return; 
-        //    }
-
-        //    _selectedDevice = e.AddedItems[0]as CoreAudioDevice;
-            
-        //    sliderMasterVolume.Value = _selectedDevice.Volume;
-        //    if (_masterVolumeObserver != null)
-        //        _masterVolumeObserver.Dispose();
-        //    _masterVolumeObserver = _selectedDevice.VolumeChanged.Subscribe(new DeviceVolumeObserver(sliderMasterVolume));
-        //}
-
-        //private void sliderMasterVolume_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
-        //{
-        //    if(sliderMasterVolume.IsEnabled)
-        //    {
-        //        _selectedDevice.Volume = e.NewValue;
-        //    }
-        //}
+        private void comboBoxDeviceList_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (e.AddedItems == null || e.AddedItems.Count < 1)
+            {
+                Trace.WriteLine("No Device Selected");
+                return;
+            }
+            CoreAudioDevice _selectedDevice = e.AddedItems[0] as CoreAudioDevice;
+            Trace.WriteLine(_selectedDevice.FullName);
+            masterVolumeControl.ChangeDevice(_selectedDevice);
+        }
     }
 }

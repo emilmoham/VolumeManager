@@ -1,4 +1,5 @@
-﻿using System;
+﻿using AudioSwitcher.AudioApi.CoreAudio;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -20,22 +21,50 @@ namespace VolumeManager.Components
     /// </summary>
     public partial class DeviceVolumeControl : UserControl
     {
-
-        public string SourceName
-        {
-            get { return (string)GetValue(SourceNameProperty); }
-            set { SetValue(SourceNameProperty, value); }
-        }
-
-        // Using a DependencyProperty as the backing store for SourceName.  This enables animation, styling, binding, etc...
-        public static readonly DependencyProperty SourceNameProperty =
-            DependencyProperty.Register("SourceName", typeof(string), typeof(DeviceVolumeControl), new PropertyMetadata(string.Empty));
-
-
+        public CoreAudioDevice? _device { get; set; }
+        private IDisposable? _deviceVolumeObserver;
 
         public DeviceVolumeControl()
         {
             InitializeComponent();
+            
+        }
+
+        public void ChangeDevice (CoreAudioDevice device)
+        {
+            if (device == null) return;
+
+            // Stop observing the old device
+            if (_deviceVolumeObserver != null)
+                _deviceVolumeObserver.Dispose();
+
+            // Change our device reference
+            _device = device;
+
+            // Begin observing the new device
+            _deviceVolumeObserver = _device.VolumeChanged.Subscribe(new DeviceVolumeObserver(sliderVolume));
+            
+            // Make the visual changes to reflect the device change
+            labelSource.Content = _device.FullName;
+            SetVolume(_device.Volume);
+        }
+
+        private void sliderVolume_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            if (sliderVolume.IsEnabled && _device != null)
+            {
+                SetVolume(e.NewValue);
+            }
+        }
+
+        private void SetVolume(double volume)
+        {
+            if (_device == null) return;
+
+            double val = Math.Round(volume);
+
+            _device.Volume = val;
+            labelPercenValue.Content = $"{val}%";
         }
     }
 }

@@ -12,6 +12,7 @@
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
         <Grid.ColumnDefinitions>
@@ -29,7 +30,7 @@
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
 
-        <ComboBox x:Name="comboBoxDeviceList" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"  Grid.ColumnSpan="12" />
-        <Components:DeviceVolumeControl SourceName="test" Grid.Row="1" Grid.ColumnSpan="12" />
+        <ComboBox x:Name="comboBoxDeviceList" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"  Grid.ColumnSpan="12" SelectionChanged="comboBoxDeviceList_SelectionChanged" />
+        <Components:DeviceVolumeControl x:Name="masterVolumeControl" Grid.Row="1" Grid.ColumnSpan="12" />
     </Grid>
 </Window>
